@@ -6,7 +6,7 @@
 //
 // Author: Julian Adamek (Université de Genève & Observatoire de Paris & Queen Mary University of London)
 //
-// Last modified: February 2019
+// Last modified: April 2019
 //
 //////////////////////////
 
@@ -66,7 +66,7 @@ void readIC(metadata & sim, icsettings & ic, cosmology & cosmo, const double fou
 	Real boxSize[3] = {1.,1.,1.};
 	string filename;
 	string buf;
-	int i, p;
+	int i, p, c;
 	char * ext;
 	char line[PARAM_MAX_LINESIZE];
 	FILE * bgfile;
@@ -82,6 +82,7 @@ void readIC(metadata & sim, icsettings & ic, cosmology & cosmo, const double fou
 	double d;
 	long count;
 	void * IDbuffer;
+	void * buf2;
 	set<long> IDlookup;
 	
 	filename.reserve(PARAM_MAX_LENGTH);
@@ -401,6 +402,144 @@ void readIC(metadata & sim, icsettings & ic, cosmology & cosmo, const double fou
 		
 		for (i = 0; i < sim.num_lightcone; i++)
 		{
+			if (parallel.isRoot())
+			{
+				if (sim.num_lightcone > 1)
+					sprintf(line, "%s%s%d_info.dat", sim.output_path, sim.basename_lightcone, i);
+				else
+					sprintf(line, "%s%s_info.dat", sim.output_path, sim.basename_lightcone);
+						
+				lcfile = fopen(line, "r");
+				
+				if (lcfile == NULL)
+				{
+					COUT << COLORTEXT_YELLOW << " /!\\ warning" << COLORTEXT_RESET << ": unable to locate file for lightcone information! A new file will be created" << endl;
+					lcfile = fopen(line, "w");
+					if (lcfile == NULL)
+					{
+						COUT << COLORTEXT_RED << " error" << COLORTEXT_RESET << ": unable to create file for lightcone information!" << endl;
+						parallel.abortForce();
+					}
+					else
+					{
+						if (sim.num_lightcone > 1)
+							fprintf(lcfile, "# information file for lightcone %d\n# geometric parameters:\n# vertex = (%f, %f, %f) Mpc/h\n# redshift = %f\n# distance = (%f - %f) Mpc/h\n# opening half-angle = %f degrees\n# direction = (%f, %f, %f)\n# cycle   tau/boxsize    a              pcl_inner        pcl_outer        metric_inner     metric_outer\n", i, sim.lightcone[i].vertex[0]*sim.boxsize, sim.lightcone[i].vertex[1]*sim.boxsize, sim.lightcone[i].vertex[2]*sim.boxsize, sim.lightcone[i].z, sim.lightcone[i].distance[0]*sim.boxsize, sim.lightcone[i].distance[1]*sim.boxsize, (sim.lightcone[i].opening > -1.) ? acos(sim.lightcone[i].opening) * 180. / M_PI : 180., sim.lightcone[i].direction[0], sim.lightcone[i].direction[1], sim.lightcone[i].direction[2]);
+						else
+							fprintf(lcfile, "# information file for lightcone\n# geometric parameters:\n# vertex = (%f, %f, %f) Mpc/h\n# redshift = %f\n# distance = (%f - %f) Mpc/h\n# opening half-angle = %f degrees\n# direction = (%f, %f, %f)\n# cycle   tau/boxsize    a              pcl_inner        pcl_outer        metric_inner     metric_outer\n", sim.lightcone[i].vertex[0]*sim.boxsize, sim.lightcone[i].vertex[1]*sim.boxsize, sim.lightcone[i].vertex[2]*sim.boxsize, sim.lightcone[i].z, sim.lightcone[i].distance[0]*sim.boxsize, sim.lightcone[i].distance[1]*sim.boxsize, (sim.lightcone[i].opening > -1.) ? acos(sim.lightcone[i].opening) * 180. / M_PI : 180., sim.lightcone[i].direction[0], sim.lightcone[i].direction[1], sim.lightcone[i].direction[2]);
+						fclose(lcfile);
+					}
+				}
+				else
+				{
+					buf.reserve(PARAM_MAX_LINESIZE);
+					buf.clear();
+				
+					for(p = 0; p < 8; p++)
+					{
+						if (fgets(line, PARAM_MAX_LINESIZE, lcfile) == 0)
+						{
+							COUT << COLORTEXT_YELLOW << " /!\\ warning" << COLORTEXT_RESET << ": unable to read file for lightcone information! A new file will be created" << endl;
+							break;
+						}
+						else if (line[0] != '#')
+						{
+							COUT << COLORTEXT_YELLOW << " /!\\ warning" << COLORTEXT_RESET << ": file for lightcone information has unexpected format! Contents will be overwritten!" << endl;
+							break;
+						}
+					}
+					
+					p = 0;
+					while (fgets(line, PARAM_MAX_LINESIZE, lcfile) != 0)
+					{
+						if (sscanf(line, " %d", &c) != 1)
+							break;
+						
+						if (c > ic.restart_cycle)
+							break;
+						else
+						{
+							buf += line;
+							p++;
+						}
+					}
+		
+					fclose(lcfile);
+					
+					if (sim.num_lightcone > 1)
+						sprintf(line, "%s%s%d_info.dat", sim.output_path, sim.basename_lightcone, i);
+					else
+						sprintf(line, "%s%s_info.dat", sim.output_path, sim.basename_lightcone);
+						
+					lcfile = fopen(line, "w");
+					
+					if (lcfile == NULL)
+					{
+						COUT << COLORTEXT_RED << " error" << COLORTEXT_RESET << ": unable to create file for lightcone information!" << endl;
+						parallel.abortForce();
+					}
+					else
+					{
+						if (sim.num_lightcone > 1)
+							fprintf(lcfile, "# information file for lightcone %d\n# geometric parameters:\n# vertex = (%f, %f, %f) Mpc/h\n# redshift = %f\n# distance = (%f - %f) Mpc/h\n# opening half-angle = %f degrees\n# direction = (%f, %f, %f)\n# cycle   tau/boxsize    a              pcl_inner        pcl_outer        metric_inner     metric_outer\n", i, sim.lightcone[i].vertex[0]*sim.boxsize, sim.lightcone[i].vertex[1]*sim.boxsize, sim.lightcone[i].vertex[2]*sim.boxsize, sim.lightcone[i].z, sim.lightcone[i].distance[0]*sim.boxsize, sim.lightcone[i].distance[1]*sim.boxsize, (sim.lightcone[i].opening > -1.) ? acos(sim.lightcone[i].opening) * 180. / M_PI : 180., sim.lightcone[i].direction[0], sim.lightcone[i].direction[1], sim.lightcone[i].direction[2]);
+						else
+							fprintf(lcfile, "# information file for lightcone\n# geometric parameters:\n# vertex = (%f, %f, %f) Mpc/h\n# redshift = %f\n# distance = (%f - %f) Mpc/h\n# opening half-angle = %f degrees\n# direction = (%f, %f, %f)\n# cycle   tau/boxsize    a              pcl_inner        pcl_outer        metric_inner     metric_outer\n", sim.lightcone[i].vertex[0]*sim.boxsize, sim.lightcone[i].vertex[1]*sim.boxsize, sim.lightcone[i].vertex[2]*sim.boxsize, sim.lightcone[i].z, sim.lightcone[i].distance[0]*sim.boxsize, sim.lightcone[i].distance[1]*sim.boxsize, (sim.lightcone[i].opening > -1.) ? acos(sim.lightcone[i].opening) * 180. / M_PI : 180., sim.lightcone[i].direction[0], sim.lightcone[i].direction[1], sim.lightcone[i].direction[2]);
+						fwrite((const void *) buf.data(), sizeof(char), buf.length(), lcfile);
+						fclose(lcfile);
+						buf.clear();
+					}
+					
+					if (sim.num_lightcone > 1)
+						sprintf(line, "%s%s%d_info.bin", sim.output_path, sim.basename_lightcone, i);
+					else
+						sprintf(line, "%s%s_info.bin", sim.output_path, sim.basename_lightcone);
+						
+					lcfile = fopen(line, "r");
+					
+					if (lcfile == NULL)
+					{
+						if (p > 0)
+						{
+							COUT << COLORTEXT_YELLOW << " /!\\ warning" << COLORTEXT_RESET << ": unable to read binary file for lightcone information!" << endl;
+						}
+					}
+					else
+					{
+						if (p > 0)
+						{
+							buf2 = malloc(p * (sizeof(int) + 6 * sizeof(double)));
+							c = fread(buf2, 1, p * (sizeof(int) + 6 * sizeof(double)), lcfile);
+							if (c != p * (sizeof(int) + 6 * sizeof(double)))
+							{
+								COUT << COLORTEXT_YELLOW << " /!\\ warning" << COLORTEXT_RESET << ": unable to read binary file for lightcone information!" << endl;
+							}
+							
+							fclose(lcfile);
+							lcfile = fopen(line, "r");
+							
+							if (lcfile == NULL)
+							{
+								COUT << COLORTEXT_RED << " error" << COLORTEXT_RESET << ": unable to create file for lightcone information!" << endl;
+								parallel.abortForce();
+							}
+							else
+							{
+								fwrite(buf2, 1, c, lcfile);
+								fclose(lcfile);
+							}
+							
+							free(buf2);
+						}
+						else
+						{
+							fclose(lcfile);
+							lcfile = fopen(line, "r");
+							if (lcfile != NULL)
+								fclose(lcfile);
+						}
+					}
+				}
+			}
+		
 			d = particleHorizon(1. / (1. + sim.lightcone[i].z), fourpiG, cosmo);
 			if (sim.out_lightcone[i] & MASK_GADGET && sim.lightcone[i].distance[0] > d - tau + 0.5 * dtau_old && sim.lightcone[i].distance[1] <= d - tau + 0.5 * dtau_old && d - tau + 0.5 * dtau_old > 0.)
 			{
