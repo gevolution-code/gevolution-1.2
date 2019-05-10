@@ -13,8 +13,8 @@ DLATFIELD2   := -DFFT3D -DHDF5
 
 # optional compiler settings (LATfield2)
 #DLATFIELD2   += -DH5_HAVE_PARALLEL
-#DLATFIELD2   += -DEXTERNAL_IO
-#DLATFIELD2   += -DSINGLE     # switches to single precision, use LIB -lfftw3f
+#DLATFIELD2   += -DEXTERNAL_IO # enables I/O server (use with care)
+#DLATFIELD2   += -DSINGLE      # switches to single precision, use LIB -lfftw3f
 
 # optional compiler settings (gevolution)
 DGEVOLUTION  := -DPHINONLINEAR

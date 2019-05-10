@@ -28,7 +28,7 @@
 //
 // Author: Julian Adamek (Université de Genève & Observatoire de Paris & Queen Mary University of London)
 //
-// Last modified: April 2019
+// Last modified: May 2019
 //
 //////////////////////////
 
@@ -64,17 +64,13 @@
 #endif
 
 using namespace std;
-
 using namespace LATfield2;
 
 int main(int argc, char **argv)
 {
-	
 #ifdef BENCHMARK
 	//benchmarking variables
-	
 	double ref_time, ref2_time, cycle_start_time;
-	
 	double initialization_time;
 	double run_time;
 	double cycle_time=0;
@@ -88,8 +84,7 @@ int main(int argc, char **argv)
 	double update_q_time = 0;
 	int update_q_count = 0;
 	double moveParts_time = 0;
-	int  moveParts_count =0;
-	
+	int  moveParts_count =0;	
 #endif  //BENCHMARK
 	
 	int n = 0, m = 0;
@@ -156,6 +151,11 @@ int main(int argc, char **argv)
 #ifndef EXTERNAL_IO
 	parallel.initialize(n,m);
 #else
+	if (!io_size || !io_group_size)
+	{
+		cout << "invalid number of I/O tasks and group sizes for I/O server (-DEXTERNAL_IO)" << endl;
+		exit(-1000);
+	}
 	parallel.initialize(n,m,io_size,io_group_size);
 	if(parallel.isIO()) ioserver.start();
 	else
@@ -164,7 +164,7 @@ int main(int argc, char **argv)
 	
 	COUT << COLORTEXT_WHITE << endl;	
 	COUT << "  _   _      _         __ ,  _" << endl;
-	COUT << " (_| (-' \\/ (_) (_ (_| (  ( (_) /\\/	version 1.2 beta    running on " << n*m << " cores." << endl;
+	COUT << " (_| (-' \\/ (_) (_ (_| (  ( (_) /\\/	version 1.2         running on " << n*m << " cores." << endl;
 	COUT << "  -'" << endl << COLORTEXT_RESET << endl;
 	
 	if (settingsfile == NULL)
