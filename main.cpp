@@ -106,7 +106,7 @@ int main(int argc, char **argv)
 	metadata sim;
 	cosmology cosmo;
 	icsettings ic;
-	Real T00hom;
+	double T00hom;
 
 #ifndef H5_DEBUG
 	H5Eset_auto2 (H5E_DEFAULT, NULL, NULL);
@@ -455,8 +455,8 @@ int main(int argc, char **argv)
 			T00hom = 0.;
 			for (x.first(); x.test(); x.next())
 				T00hom += source(x);
-			parallel.sum<Real>(T00hom);
-			T00hom /= (Real) numpts3d;
+			parallel.sum<double>(T00hom);
+			T00hom /= (double) numpts3d;
 			
 			if (cycle % CYCLE_INFO_INTERVAL == 0)
 			{

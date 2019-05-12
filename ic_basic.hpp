@@ -6,7 +6,7 @@
 //
 // Author: Julian Adamek (Université de Genève & Observatoire de Paris & Queen Mary University of London)
 //
-// Last modified: April 2019
+// Last modified: May 2019
 //
 //////////////////////////
 
@@ -1400,21 +1400,19 @@ void generateDisplacementField(Field<Cplx> & potFT, const Real coeff, const gsl_
 void initializeParticlePositions(const long numpart, const float * partdata, const int numtile, Particles<part_simple,part_simple_info,part_simple_dataType> & pcls)
 {
 	long xtile, ytile, ztile, i;
-	Real x, lx, fx, x0, y, ly, fy, y0, z, lz, fz, z0;
-	Real dmax = 0.;
 	Site p(pcls.lattice());
 	
 	part_simple part;
 	
-	lx = pcls.lattice().size(0);
-	ly = pcls.lattice().size(1);
-	lz = pcls.lattice().size(2);
+	part.vel[0] = 0.;
+	part.vel[1] = 0.;
+	part.vel[2] = 0.;
 	
-	for (ztile = (pcls.lattice().coordSkip()[0] * numtile) / lz; ztile <= ((pcls.lattice().coordSkip()[0] + pcls.lattice().sizeLocal(2)) * numtile) / lz; ztile++)
+	for (ztile = (pcls.lattice().coordSkip()[0] * numtile) / pcls.lattice().size(2); ztile <= ((pcls.lattice().coordSkip()[0] + pcls.lattice().sizeLocal(2)) * numtile) / pcls.lattice().size(2); ztile++)
 	{
 		if (ztile >= numtile) break;
 		
-		for (ytile = (pcls.lattice().coordSkip()[1] * numtile) / ly; ytile <= ((pcls.lattice().coordSkip()[1] + pcls.lattice().sizeLocal(1)) * numtile) / ly; ytile++)
+		for (ytile = (pcls.lattice().coordSkip()[1] * numtile) / pcls.lattice().size(1); ytile <= ((pcls.lattice().coordSkip()[1] + pcls.lattice().sizeLocal(1)) * numtile) / pcls.lattice().size(1); ytile++)
 		{
 			if (ytile >= numtile) break;
 			
@@ -1422,23 +1420,12 @@ void initializeParticlePositions(const long numpart, const float * partdata, con
 			{
 				for (i = 0; i < numpart; i++)
 				{
-					x = ((Real) xtile + partdata[3*i]) / (Real) numtile;
-					y = ((Real) ytile + partdata[3*i+1]) / (Real) numtile;
-					z = ((Real) ztile + partdata[3*i+2]) / (Real) numtile;
-					
-					fx = modf(x * lx, &x0);
-					fy = modf(y * ly, &y0);
-					fz = modf(z * lz, &z0);
-					
-					if (!p.setCoord((int) x0, (int) y0, (int) z0)) continue;
+					part.pos[0] = ((Real) xtile + partdata[3*i]) / (Real) numtile;
+					part.pos[1] = ((Real) ytile + partdata[3*i+1]) / (Real) numtile;
+					part.pos[2] = ((Real) ztile + partdata[3*i+2]) / (Real) numtile;
 					
 					part.ID = i + numpart * (xtile + (long) numtile * (ytile + (long) numtile * ztile));
-					part.pos[0] = x;
-					part.pos[1] = y;
-					part.pos[2] = z;
-					part.vel[0] = 0.;
-					part.vel[1] = 0.;
-					part.vel[2] = 0.;
+					
 					pcls.addParticle_global(part);
 				}
 			}
