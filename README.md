@@ -1,5 +1,16 @@
 # gevolution-1.2
 
+## Files: manual.pdf
+
+Copyright (c) 2015-2019 CC-BY-ND Julian Adamek
+(Université de Genève & Observatoire de Paris & Queen Mary University of London)
+
+The file "manual.pdf" is licensed under a Creative Commons
+Attribution-NoDerivatives 4.0 International License - see
+https://creativecommons.org/licenses/by-nd/4.0/ for details.
+
+## All other files:
+
 Copyright (c) 2015-2019 Julian Adamek
 (Université de Genève & Observatoire de Paris & Queen Mary University of London)
 
