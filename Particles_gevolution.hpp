@@ -4,7 +4,7 @@
 //
 // Author: Julian Adamek (Université de Genève & Observatoire de Paris & Queen Mary University of London)
 //
-// Last modified: April 2019
+// Last modified: August 2019
 //
 //////////////////////////
 
@@ -593,6 +593,7 @@ void Particles_gevolution<part,part_info,part_dataType>::loadGadget2(string file
 		for (i = 0; i < 3 * count; i++)
 		{
 			posdata[i] /= hdr.BoxSize;
+			if (posdata[i] >= 1.) posdata[i] -= 1.;
 			veldata[i] *= hdr.time / rescale_vel;
 		}
 

@@ -6,7 +6,7 @@
 //
 // Author: Julian Adamek (Université de Genève & Observatoire de Paris & Queen Mary University of London)
 //
-// Last modified: April 2019
+// Last modified: August 2019
 //
 //////////////////////////
 
@@ -132,8 +132,8 @@ void readIC(metadata & sim, icsettings & ic, cosmology & cosmo, const double fou
 			{
 				ext = ic.pclfile[0];
 				while (strchr(ext, (int) '.') != NULL)
-					ext = strchr(ext, (int) '.');
-				sprintf(ext+1, "%d", i);
+					ext = strchr(ext, (int) '.')+1;
+				sprintf(ext, "%d", i);
 			}
 		}
 		while (i < hdr.num_files);
@@ -188,8 +188,8 @@ void readIC(metadata & sim, icsettings & ic, cosmology & cosmo, const double fou
 				{
 					ext = ic.pclfile[1];
 					while (strchr(ext, (int) '.') != NULL)
-						ext = strchr(ext, (int) '.');
-					sprintf(ext+1, "%d", i);
+						ext = strchr(ext, (int) '.')+1;
+					sprintf(ext, "%d", i);
 				}
 			}
 			while (i < hdr.num_files);
@@ -249,8 +249,8 @@ void readIC(metadata & sim, icsettings & ic, cosmology & cosmo, const double fou
 				{
 					ext = ic.pclfile[sim.baryon_flag+1+p];
 					while (strchr(ext, (int) '.') != NULL)
-						ext = strchr(ext, (int) '.');
-					sprintf(ext+1, "%d", i);
+						ext = strchr(ext, (int) '.')+1;
+					sprintf(ext, "%d", i);
 				}
 			}
 			while (i < hdr.num_files);
