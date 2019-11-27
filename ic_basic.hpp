@@ -6,7 +6,7 @@
 //
 // Author: Julian Adamek (Université de Genève & Observatoire de Paris & Queen Mary University of London)
 //
-// Last modified: May 2019
+// Last modified: November 2019
 //
 //////////////////////////
 
@@ -1657,8 +1657,8 @@ void generateIC_basic(metadata & sim, icsettings & ic, cosmology & cosmo, const 
 
 #ifdef HAVE_CLASS
   	background class_background;
+  	thermo class_thermo;
   	perturbs class_perturbs;
-  	spectra class_spectra;
 #endif
 	
 	loadHomogeneousTemplate(ic.pclfile[0], sim.numpcl[0], pcldata);
@@ -1705,8 +1705,8 @@ void generateIC_basic(metadata & sim, icsettings & ic, cosmology & cosmo, const 
 #ifdef HAVE_CLASS
 		if (ic.tkfile[0] == '\0')
 		{
-			initializeCLASSstructures(sim, ic, cosmo, class_background, class_perturbs, class_spectra, params, numparam);
-			loadTransferFunctions(class_background, class_perturbs, class_spectra, tk_d1, tk_t1, "tot", sim.boxsize, sim.z_in, cosmo.h);
+			initializeCLASSstructures(sim, ic, cosmo, class_background, class_thermo, class_perturbs, params, numparam);
+			loadTransferFunctions(class_background, class_perturbs, tk_d1, tk_t1, "tot", sim.boxsize, sim.z_in, cosmo.h);
 		}
 		else
 #endif
@@ -1744,7 +1744,7 @@ void generateIC_basic(metadata & sim, icsettings & ic, cosmology & cosmo, const 
 		{
 			if (sim.gr_flag == 0)
 			{
-				loadTransferFunctions(class_background, class_perturbs, class_spectra, tk_d1, tk_t1, NULL, sim.boxsize, sim.z_in, cosmo.h);
+				loadTransferFunctions(class_background, class_perturbs, tk_d1, tk_t1, NULL, sim.boxsize, sim.z_in, cosmo.h);
 
 				for (i = 0; i < tk_d1->size; i++)
 					temp1[i] = -tk_d1->y[i];
@@ -1752,7 +1752,7 @@ void generateIC_basic(metadata & sim, icsettings & ic, cosmology & cosmo, const 
 				gsl_spline_free(tk_d1);
 				gsl_spline_free(tk_t1);
 
-				loadTransferFunctions(class_background, class_perturbs, class_spectra, tk_d1, tk_t1, NULL, sim.boxsize, (sim.z_in + 0.01) / 0.99, cosmo.h);
+				loadTransferFunctions(class_background, class_perturbs, tk_d1, tk_t1, NULL, sim.boxsize, (sim.z_in + 0.01) / 0.99, cosmo.h);
 
 				for (i = 0; i < tk_d1->size; i++)
 					temp1[i] += tk_d1->y[i];
@@ -1760,7 +1760,7 @@ void generateIC_basic(metadata & sim, icsettings & ic, cosmology & cosmo, const 
 				gsl_spline_free(tk_d1);
 				gsl_spline_free(tk_t1);
 
-				loadTransferFunctions(class_background, class_perturbs, class_spectra, tk_d1, tk_t1, "tot", sim.boxsize, (sim.z_in + 0.01) / 0.99, cosmo.h);
+				loadTransferFunctions(class_background, class_perturbs, tk_d1, tk_t1, "tot", sim.boxsize, (sim.z_in + 0.01) / 0.99, cosmo.h);
 
 				for (i = 0; i < tk_d1->size; i++) // construct gauge correction for N-body gauge velocities
 					temp1[i] = -99.5 * Hconf(0.995 * a, fourpiG, cosmo) * (3. * temp1[i] * M_PI * sqrt(Pk_primordial(tk_d1->x[i] * cosmo.h / sim.boxsize, ic) / tk_d1->x[i]) / tk_d1->x[i] + (temp2[i] + 3. * Hconf(0.99 * a, fourpiG, cosmo)  * M_PI * tk_t1->y[i] * sqrt(Pk_primordial(tk_d1->x[i] * cosmo.h / sim.boxsize, ic) / tk_d1->x[i]) / tk_d1->x[i] / tk_d1->x[i] / tk_d1->x[i]));
@@ -1772,7 +1772,7 @@ void generateIC_basic(metadata & sim, icsettings & ic, cosmology & cosmo, const 
 				gsl_spline_free(tk_t1);
 			}
 
-			loadTransferFunctions(class_background, class_perturbs, class_spectra, tk_d1, tk_t1, "cdm", sim.boxsize, sim.z_in, cosmo.h);
+			loadTransferFunctions(class_background, class_perturbs, tk_d1, tk_t1, "cdm", sim.boxsize, sim.z_in, cosmo.h);
 		}
 		else
 #endif		
@@ -1788,7 +1788,7 @@ void generateIC_basic(metadata & sim, icsettings & ic, cosmology & cosmo, const 
 		{
 #ifdef HAVE_CLASS
 			if (ic.tkfile[0] == '\0')
-				loadTransferFunctions(class_background, class_perturbs, class_spectra, tk_d2, tk_t2, "b", sim.boxsize, sim.z_in, cosmo.h);
+				loadTransferFunctions(class_background, class_perturbs, tk_d2, tk_t2, "b", sim.boxsize, sim.z_in, cosmo.h);
 			else
 #endif
 			loadTransferFunctions(ic.tkfile, tk_d2, tk_t2, "b", sim.boxsize, cosmo.h);	// get transfer functions for baryons
@@ -2088,7 +2088,7 @@ void generateIC_basic(metadata & sim, icsettings & ic, cosmology & cosmo, const 
 			sprintf(ncdm_name, "ncdm[%d]", p);
 #ifdef HAVE_CLASS
 			if (ic.tkfile[0] == '\0')
-				loadTransferFunctions(class_background, class_perturbs, class_spectra, tk_d1, tk_t1, ncdm_name, sim.boxsize, sim.z_in, cosmo.h);
+				loadTransferFunctions(class_background, class_perturbs, tk_d1, tk_t1, ncdm_name, sim.boxsize, sim.z_in, cosmo.h);
 			else
 #endif
 			loadTransferFunctions(ic.tkfile, tk_d1, tk_t1, ncdm_name, sim.boxsize, cosmo.h);
@@ -2169,7 +2169,7 @@ void generateIC_basic(metadata & sim, icsettings & ic, cosmology & cosmo, const 
 		generateDisplacementField(*scalarFT, 0., pkspline, (unsigned int) ic.seed, ic.flags & ICFLAG_KSPHERE, 0);
 #ifdef HAVE_CLASS
 		if (ic.tkfile[0] == '\0')
-			freeCLASSstructures(class_background, class_perturbs, class_spectra);
+			freeCLASSstructures(class_background, class_thermo, class_perturbs);
 #endif
 	}
 	else

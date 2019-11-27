@@ -6,7 +6,7 @@
 //
 // Author: Julian Adamek (Université de Genève & Observatoire de Paris & Queen Mary University of London)
 //
-// Last modified: April 2019
+// Last modified: November 2019
 //
 //////////////////////////
 
@@ -32,8 +32,8 @@ using namespace LATfield2;
 //   ic                settings for IC generation
 //   cosmo             cosmological parameter structure
 //   class_background  CLASS structure that will contain the background
+//   class_thermo      CLASS structure that will contain thermodynamics
 //   class_perturbs    CLASS structure that will contain perturbations
-//   class_spectra     CLASS structure that will contain spectra
 //   params            pointer to array of precision settings (optional)
 //   numparam          number of precision settings (default 0)
 //   output_value      CLASS parameter value specifying the output (optional)
@@ -42,13 +42,13 @@ using namespace LATfield2;
 // 
 //////////////////////////
 
-void initializeCLASSstructures(metadata & sim, icsettings & ic, cosmology & cosmo, background & class_background, perturbs & class_perturbs, spectra & class_spectra, parameter * params = NULL, int numparam = 0, const char * output_value = "dTk, vTk")
+void initializeCLASSstructures(metadata & sim, icsettings & ic, cosmology & cosmo, background & class_background, thermo & class_thermo, perturbs & class_perturbs, parameter * params = NULL, int numparam = 0, const char * output_value = "dTk, vTk")
 {
 	precision class_precision;
-	thermo class_thermo;
 	transfers class_transfers;
   	primordial class_primordial;
 	nonlinear class_nonlinear;
+	spectra class_spectra;
   	lensing class_lensing;
   	output class_output;
 	file_content class_filecontent;
@@ -265,62 +265,6 @@ void initializeCLASSstructures(metadata & sim, icsettings & ic, cosmology & cosm
 		parallel.abortForce();
 	}
 
-	if (primordial_init(&class_precision, &class_perturbs, &class_primordial) == _FAILURE_)
-	{
-		COUT << " error: calling primordial_init from CLASS library failed!" << endl << " following error message was passed: " << class_primordial.error_message << endl;
-		parallel.abortForce();
-	}
-
-	if (nonlinear_init(&class_precision, &class_background, &class_thermo, &class_perturbs, &class_primordial, &class_nonlinear) == _FAILURE_)
-	{
-		COUT << " error: calling nonlinear_init from CLASS library failed!" << endl << " following error message was passed: " << class_nonlinear.error_message << endl;
-		parallel.abortForce();
-	}
-
-	if (transfer_init(&class_precision, &class_background, &class_thermo, &class_perturbs, &class_nonlinear, &class_transfers) == _FAILURE_)
-	{
-		COUT << " error: calling transfer_init from CLASS library failed!" << endl << " following error message was passed: " << class_transfers.error_message << endl;
-		parallel.abortForce();
-	}
-
-	if (spectra_init(&class_precision, &class_background, &class_perturbs, &class_primordial, &class_nonlinear, &class_transfers, &class_spectra) == _FAILURE_)
-	{
-		COUT << " error: calling spectra_init from CLASS library failed!" << endl << " following error message was passed: " << class_spectra.error_message << endl;
-		parallel.abortForce();
-	}
-
-	// Now, free unneeded structures
-
-	if (lensing_free(&class_lensing) == _FAILURE_)
-	{
-		COUT << " error: calling lensing_free from CLASS library failed!" << endl << " following error message was passed: " << class_lensing.error_message << endl;
-		parallel.abortForce();
-	}
-
-	if (transfer_free(&class_transfers) == _FAILURE_)
-	{
-		COUT << " error: calling transfer_free from CLASS library failed!" << endl << " following error message was passed: " << class_transfers.error_message << endl;
-		parallel.abortForce();
-	}
-
-	if (nonlinear_free(&class_nonlinear) == _FAILURE_)
-	{
-		COUT << " error: calling nonlinear_free from CLASS library failed!" << endl << " following error message was passed: " << class_nonlinear.error_message << endl;
-		parallel.abortForce();
-	}
-
-	if (primordial_free(&class_primordial) == _FAILURE_)
-	{
-		COUT << " error: calling primordial_free from CLASS library failed!" << endl << " following error message was passed: " << class_primordial.error_message << endl;
-		parallel.abortForce();
-	}
-
-	if (thermodynamics_free(&class_thermo) == _FAILURE_)
-	{
-		COUT << " error: calling thermodynamics_free from CLASS library failed!" << endl << " following error message was passed: " << class_thermo.error_message << endl;
-		parallel.abortForce();
-	}
-
 	COUT << endl << " CLASS structures initialized successfully." << endl;
 }
 
@@ -333,24 +277,24 @@ void initializeCLASSstructures(metadata & sim, icsettings & ic, cosmology & cosm
 // 
 // Arguments:
 //   class_background  CLASS structure that contains the background
+//   class_thremo      CLASS structure that contains thermodynamics
 //   class_perturbs    CLASS structure that contains perturbations
-//   class_spectra     CLASS structure that contains spectra
 //
 // Returns:
 // 
 //////////////////////////
 
-void freeCLASSstructures(background & class_background, perturbs & class_perturbs, spectra & class_spectra)
+void freeCLASSstructures(background & class_background, thermo & class_thermo, perturbs & class_perturbs)
 {
-	if (spectra_free(&class_spectra) == _FAILURE_)
-	{
-		COUT << " error: calling spectra_free from CLASS library failed!" << endl << " following error message was passed: " << class_spectra.error_message << endl;
-		parallel.abortForce();
-	}
-
 	if (perturb_free(&class_perturbs) == _FAILURE_)
 	{
 		COUT << " error: calling perturb_free from CLASS library failed!" << endl << " following error message was passed: " << class_perturbs.error_message << endl;
+		parallel.abortForce();
+	}
+	
+	if (thermodynamics_free(&class_thermo) == _FAILURE_)
+	{
+		COUT << " error: calling thermodynamics_free from CLASS library failed!" << endl << " following error message was passed: " << class_thermo.error_message << endl;
 		parallel.abortForce();
 	}
 
@@ -371,7 +315,6 @@ void freeCLASSstructures(background & class_background, perturbs & class_perturb
 // Arguments:
 //   class_background  CLASS structure that contains the background
 //   class_perturbs    CLASS structure that contains the perturbations
-//   class_spectra     CLASS structure that contains the spectra
 //   tk_delta          will point to the gsl_spline which holds the tabulated
 //                     transfer function for delta (memory will be allocated)
 //   tk_theta          will point to the gsl_spline which holds the tabulated
@@ -386,7 +329,7 @@ void freeCLASSstructures(background & class_background, perturbs & class_perturb
 // 
 //////////////////////////
 
-void loadTransferFunctions(background & class_background, perturbs & class_perturbs, spectra & class_spectra, gsl_spline * & tk_delta, gsl_spline * & tk_theta, const char * qname, const double boxsize, const double z, double h)
+void loadTransferFunctions(background & class_background, perturbs & class_perturbs, gsl_spline * & tk_delta, gsl_spline * & tk_theta, const char * qname, const double boxsize, const double z, double h)
 {
 	int cols = 0, dcol = -1, tcol = -1, kcol = -1;
 	double * k;
@@ -399,7 +342,8 @@ void loadTransferFunctions(background & class_background, perturbs & class_pertu
 	char kname[8];
 	char * ptr;
 
-	spectra_output_tk_titles(&class_background, &class_perturbs, class_format, coltitles);
+	perturb_output_titles(&class_background, &class_perturbs, class_format, coltitles);
+
 	if (qname != NULL)
 	{
 		sprintf(dname, "d_%s", qname);
@@ -430,14 +374,14 @@ void loadTransferFunctions(background & class_background, perturbs & class_pertu
 		parallel.abortForce();
 	}
 
-	data = (double *) malloc(sizeof(double) * cols * class_spectra.ln_k_size);
-	k = (double *) malloc(sizeof(double) * class_spectra.ln_k_size);
-	tk_d = (double *) malloc(sizeof(double) * class_spectra.ln_k_size);
-	tk_t = (double *) malloc(sizeof(double) * class_spectra.ln_k_size);
+	data = (double *) malloc(sizeof(double) * cols*class_perturbs.k_size[class_perturbs.index_md_scalars]);
+	k = (double *) malloc(sizeof(double) * class_perturbs.k_size[class_perturbs.index_md_scalars]);
+	tk_d = (double *) malloc(sizeof(double) * class_perturbs.k_size[class_perturbs.index_md_scalars]);
+	tk_t = (double *) malloc(sizeof(double) * class_perturbs.k_size[class_perturbs.index_md_scalars]);
 
-	spectra_output_tk_data(&class_background, &class_perturbs, &class_spectra, class_format, z, cols, data);
+	perturb_output_data(&class_background, &class_perturbs, class_format, z, cols, data);
 
-	for (int i = 0; i < class_spectra.ln_k_size; i++)
+	for (int i = 0; i < class_perturbs.k_size[class_perturbs.index_md_scalars]; i++)
 	{
 		k[i] = data[i*cols + kcol] * boxsize;
 		tk_d[i] = data[i*cols + dcol];
@@ -454,11 +398,11 @@ void loadTransferFunctions(background & class_background, perturbs & class_pertu
 
 	free(data);
 	
-	tk_delta = gsl_spline_alloc(gsl_interp_cspline, class_spectra.ln_k_size);
-	tk_theta = gsl_spline_alloc(gsl_interp_cspline, class_spectra.ln_k_size);
+	tk_delta = gsl_spline_alloc(gsl_interp_cspline, class_perturbs.k_size[class_perturbs.index_md_scalars]);
+	tk_theta = gsl_spline_alloc(gsl_interp_cspline, class_perturbs.k_size[class_perturbs.index_md_scalars]);
 	
-	gsl_spline_init(tk_delta, k, tk_d, class_spectra.ln_k_size);
-	gsl_spline_init(tk_theta, k, tk_t, class_spectra.ln_k_size);
+	gsl_spline_init(tk_delta, k, tk_d, class_perturbs.k_size[class_perturbs.index_md_scalars]);
+	gsl_spline_init(tk_theta, k, tk_t, class_perturbs.k_size[class_perturbs.index_md_scalars]);
 	
 	free(k);
 	free(tk_d);
