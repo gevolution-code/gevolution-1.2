@@ -2,6 +2,7 @@
 COMPILER     := mpic++
 INCLUDE      := # add the path to LATfield2 and other libraries (if necessary)
 LIB          := -lfftw3 -lm -lhdf5 -lgsl -lgslcblas
+HPXCXXLIB    := -lhealpix_cxx -lcxxsupport -lcfitsio
 
 # target and source
 EXEC         := gevolution
@@ -33,8 +34,11 @@ $(EXEC): $(SOURCE) $(HEADERS) makefile
 	$(COMPILER) $< -o $@ $(OPT) $(DLATFIELD2) $(DGEVOLUTION) $(INCLUDE) $(LIB)
 	
 lccat: lccat.cpp
-	$(COMPILER) $< -o $@ $(OPT) $(DGEVOLUTION) $(INCLUDE)
+	$(COMPILER) $< -o $@ $(OPT) -fopenmp $(DGEVOLUTION) $(INCLUDE)
+	
+lcmap: lcmap.cpp
+	$(COMPILER) $< -o $@ $(OPT) $(DGEVOLUTION) $(INCLUDE) $(LIB) $(HPXCXXLIB)
 
 clean:
-	-rm -f $(EXEC) lccat
+	-rm -f $(EXEC) lccat lcmap
 
