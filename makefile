@@ -34,10 +34,10 @@ $(EXEC): $(SOURCE) $(HEADERS) makefile
 	$(COMPILER) $< -o $@ $(OPT) $(DLATFIELD2) $(DGEVOLUTION) $(INCLUDE) $(LIB)
 	
 lccat: lccat.cpp
-	$(COMPILER) $< -o $@ $(OPT) -fopenmp $(DGEVOLUTION) $(INCLUDE)
+	$(COMPILER) $< -o $@ $(OPT) $(DGEVOLUTION) $(INCLUDE)
 	
 lcmap: lcmap.cpp
-	$(COMPILER) $< -o $@ $(OPT) $(DGEVOLUTION) $(INCLUDE) $(LIB) $(HPXCXXLIB)
+	$(COMPILER) $< -o $@ $(OPT) -fopenmp $(DGEVOLUTION) $(INCLUDE) $(LIB) $(HPXCXXLIB)
 
 clean:
 	-rm -f $(EXEC) lccat lcmap
