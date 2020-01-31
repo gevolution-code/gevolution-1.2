@@ -1,6 +1,6 @@
 # gevolution-1.2
 
-Copyright (c) 2015-2019 Julian Adamek
+Copyright (c) 2015-2020 Julian Adamek
 (Université de Genève & Observatoire de Paris & Queen Mary University of London)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy

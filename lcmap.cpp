@@ -256,7 +256,6 @@ int main(int argc, char **argv)
 	double distances[numoutputs];
 
 	int n = 0;
-	int step = 1;
 
 	if(redshiftparam == NULL && distanceparam != NULL)
 	{
@@ -314,17 +313,7 @@ int main(int argc, char **argv)
 
 		for (int i = 0; i < numoutputs; i++)
 		{
-			while (redshifts[i]+1. > 1./back[step].a)
-			{
-				step++;
-				if (step > numlines-1)
-				{
-					cout << COLORTEXT_RED << " error" << COLORTEXT_RESET << ": redshift of " << redshifts[i] << " cannot be mapped to distance using data from " << sim.basename_generic << "_background.dat!" << endl;
-					return -1;
-				}
-			}
-			distances[i] = ((redshifts[i]+1.-1./back[step-1].a)*back[step].tau - (redshifts[i]+1.-1./back[step].a)*back[step-1].tau) / (1./back[step].a - 1./back[step-1].a);
-			distances[i] = tauobs - distances[i];
+			distances[i] = tauobs - particleHorizon(1./(redshifts[i]+1.), 1.5 * sim.boxsize * sim.boxsize / C_SPEED_OF_LIGHT / C_SPEED_OF_LIGHT, cosmo);
 			
 			if(i!=0) cout << ", ";
 			cout << redshifts[i];
@@ -352,7 +341,7 @@ int main(int argc, char **argv)
 
 	int64_t p, q, ipix, jpix, ring, pixoffset=0;
 
-	step=0;
+	int step=0;
 	int outcnt = 0;
 	int cnt = 0;
 	int thresh = 1;
