@@ -482,8 +482,8 @@ int main(int argc, char **argv)
 				{
 					for (int m = outcnt; m < numoutputs; m++)
 						map_phi_final[m][l+pixoffset] -= 2.*(it0->second.hdr.distance - dist)*((distances[m]-it0->second.hdr.distance)/(distances[m]*it0->second.hdr.distance))*lin_int(it0->second.pixel[l],it1->second.pixel[l], (it0->second.hdr.distance - (tauobs - back[step].tau))/((back[step].tau - back[step+1].tau)));
-					map_isw_final[l+pixoffset] -= 2.*(it0->second.hdr.distance - dist) * (it0->second.pixel[l] - it1->second.pixel[l]) / (back[step].tau - back[step+1].tau);
-					map_shapiro_final[l+pixoffset] += 2.*sim.boxsize*(it0->second.hdr.distance - dist) * lin_int(it0->second.pixel[l],it1->second.pixel[l], (it0->second.hdr.distance - (tauobs - back[step].tau))/((back[step].tau - back[step+1].tau)));
+					map_isw_final[l+pixoffset] += 2.*(it0->second.hdr.distance - dist) * (it0->second.pixel[l] - it1->second.pixel[l]) / (back[step].tau - back[step+1].tau);
+					map_shapiro_final[l+pixoffset] -= 2.*sim.boxsize*(it0->second.hdr.distance - dist) * lin_int(it0->second.pixel[l],it1->second.pixel[l], (it0->second.hdr.distance - (tauobs - back[step].tau))/((back[step].tau - back[step+1].tau)));
 				}
 			}
 			
@@ -587,7 +587,7 @@ int main(int argc, char **argv)
 	
 #pragma omp parallel for
 				for (long l = 0; l < Npix_final; l++)
-					map_phi_final[outcnt][l+pixoffset] = (map_isw_final[l+pixoffset] < -1.5e29) ? map_isw_final[l+pixoffset] : map_isw_final[l+pixoffset] - 2.*(distances[outcnt]+0.5*dist-1.5*it0->second.hdr.distance) * (it0->second.pixel[l] - it1->second.pixel[l]) / (back[step].tau - back[step+1].tau);
+					map_phi_final[outcnt][l+pixoffset] = (map_isw_final[l+pixoffset] < -1.5e29) ? map_isw_final[l+pixoffset] : map_isw_final[l+pixoffset] + 2.*(distances[outcnt]+0.5*dist-1.5*it0->second.hdr.distance) * (it0->second.pixel[l] - it1->second.pixel[l]) / (back[step].tau - back[step+1].tau);
 				
 				if (Nside_final > Nside_initial)
 				{
@@ -654,7 +654,7 @@ int main(int argc, char **argv)
 	
 				#pragma omp parallel for
 				for (long l = 0; l < Npix_final; l++)
-					map_phi_final[outcnt][l+pixoffset] = (map_shapiro_final[l+pixoffset] < -1.5e29) ? map_shapiro_final[l+pixoffset] : map_shapiro_final[l+pixoffset] + 2.*sim.boxsize*(distances[outcnt]+0.5*dist-1.5*it0->second.hdr.distance) * lin_int(it0->second.pixel[l],it1->second.pixel[l], (it0->second.hdr.distance - (tauobs - back[step].tau))/((back[step].tau - back[step+1].tau)));
+					map_phi_final[outcnt][l+pixoffset] = (map_shapiro_final[l+pixoffset] < -1.5e29) ? map_shapiro_final[l+pixoffset] : map_shapiro_final[l+pixoffset] - 2.*sim.boxsize*(distances[outcnt]+0.5*dist-1.5*it0->second.hdr.distance) * lin_int(it0->second.pixel[l],it1->second.pixel[l], (it0->second.hdr.distance - (tauobs - back[step].tau))/((back[step].tau - back[step+1].tau)));
 					
 				if (Nside_final > Nside_initial)
 				{
