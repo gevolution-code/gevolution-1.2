@@ -6,7 +6,7 @@
 //
 // Author: Julian Adamek (Université de Genève & Observatoire de Paris & Queen Mary University of London)
 //
-// Last modified: November 2019
+// Last modified: March 2020
 //
 //////////////////////////
 
@@ -1568,12 +1568,12 @@ void writeLightcones(metadata & sim, cosmology & cosmo, const double fourpiG, co
 				sprintf(filename, "_%04d", cycle);
 
 			if (sim.tracer_factor[0] > 0)
-				pcls_cdm->saveGadget2(h5filename + filename + "_cdm", hdr, sim.lightcone[i], d - tau, dtau, dtau_old, vertex, n, IDbacklog[0], IDprelog[0], phi, sim.tracer_factor[0]); 
+				pcls_cdm->saveGadget2(h5filename + filename + "_cdm", hdr, sim.lightcone[i], d - tau, dtau, dtau_old, a * Hconf(a, fourpiG, cosmo), vertex, n, IDbacklog[0], IDprelog[0], phi, sim.tracer_factor[0]); 
 
 			if (sim.baryon_flag && sim.tracer_factor[1] > 0)
 			{
 				hdr.mass[1] = (double) sim.tracer_factor[1] * C_RHO_CRIT * cosmo.Omega_b * sim.boxsize * sim.boxsize * sim.boxsize / sim.numpcl[1] / GADGET_MASS_CONVERSION;
-				pcls_b->saveGadget2(h5filename + filename + "_b", hdr, sim.lightcone[i], d - tau, dtau, dtau_old, vertex, n, IDbacklog[1], IDprelog[1], phi, sim.tracer_factor[1]);
+				pcls_b->saveGadget2(h5filename + filename + "_b", hdr, sim.lightcone[i], d - tau, dtau, dtau_old, a * Hconf(a, fourpiG, cosmo), vertex, n, IDbacklog[1], IDprelog[1], phi, sim.tracer_factor[1]);
 			}
 			
 			for (p = 0; p < cosmo.num_ncdm; p++)
@@ -1581,7 +1581,7 @@ void writeLightcones(metadata & sim, cosmology & cosmo, const double fourpiG, co
 				if (sim.numpcl[1+sim.baryon_flag+p] == 0 || sim.tracer_factor[p+1+sim.baryon_flag] == 0) continue;
 				sprintf(buffer, "_ncdm%d", p);
 				hdr.mass[1] = (double) sim.tracer_factor[p+1+sim.baryon_flag] * C_RHO_CRIT * cosmo.Omega_ncdm[p] * sim.boxsize * sim.boxsize * sim.boxsize / sim.numpcl[p+1+sim.baryon_flag] / GADGET_MASS_CONVERSION;
-				pcls_ncdm[p].saveGadget2(h5filename + filename + buffer, hdr, sim.lightcone[i], d - tau, dtau, dtau_old, vertex, n, IDbacklog[p+1+sim.baryon_flag], IDprelog[p+1+sim.baryon_flag], phi, sim.tracer_factor[p+1+sim.baryon_flag]);
+				pcls_ncdm[p].saveGadget2(h5filename + filename + buffer, hdr, sim.lightcone[i], d - tau, dtau, dtau_old, a * Hconf(a, fourpiG, cosmo), vertex, n, IDbacklog[p+1+sim.baryon_flag], IDprelog[p+1+sim.baryon_flag], phi, sim.tracer_factor[p+1+sim.baryon_flag]);
 			}
 		}
 	}
