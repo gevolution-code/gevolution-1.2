@@ -2,7 +2,7 @@
 COMPILER     := mpic++
 INCLUDE      := # add the path to LATfield2 and other libraries (if necessary)
 LIB          := -lfftw3 -lm -lhdf5 -lgsl -lgslcblas
-HPXCXXLIB    := -lhealpix_cxx -lcxxsupport -lcfitsio
+HPXCXXLIB    := -lhealpix_cxx -lcfitsio
 
 # target and source
 EXEC         := gevolution
