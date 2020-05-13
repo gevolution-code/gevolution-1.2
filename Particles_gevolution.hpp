@@ -199,7 +199,7 @@ void Particles_gevolution<part,part_info,part_dataType>::saveGadget2(string file
 					ref_dist[1] = 1. + (4. - (ref_dist[0] / ref_dist[1])) * phip;
 					
 					for (i = 0; i < 3; i++)
-						posdata[3*count+i] = modf((*it).pos[i] + dtau_pos * (*it).vel[i] * ref_dist[1] / ref_dist[2], &phip) * hdr.BoxSize;
+						posdata[3*count+i] = modf(1. + (*it).pos[i] + dtau_pos * (*it).vel[i] * ref_dist[1] / ref_dist[2], &phip) * hdr.BoxSize;
 					
 					for (i = 0; i < 3; i++)
 						veldata[3*count+i] = ((*it).vel[i] - dtau_vel * ref_dist[0] * gradphi[i] / this->lat_resolution_ / ref_dist[2]) * rescale_vel / hdr.time;
