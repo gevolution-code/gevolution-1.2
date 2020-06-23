@@ -352,7 +352,7 @@ int main(int argc, char **argv)
 				fread(&blocksize, sizeof(uint32_t), 1, infile);
 				fread(&blocksize, sizeof(uint32_t), 1, infile);
 
-				long blockoffset = 3l * sizeof(float) * (long) hdr.npart[1] + 2l * sizeof(uint32_t);
+				long blockoffset = 3l * sizeof(float) * ((int64_t) hdr.npartTotal[1] + ((int64_t) hdr.npartTotalHW[1] << 32)) + 2l * sizeof(uint32_t);
 
 				backtrack = ftell(infile);
 
