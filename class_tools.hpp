@@ -15,6 +15,16 @@
 
 #ifdef HAVE_CLASS
 
+#define thermo thermodynamics
+#define perturbs perturbations
+#define nonlinear fourier
+#define transfers transfer
+#define spectra harmonic
+#define perturb_init perturbations_init
+#define perturb_free perturbations_free
+#define perturb_output_titles perturbations_output_titles
+#define perturb_output_data perturbations_output_data
+
 #include <gsl/gsl_spline.h>
 #include "parser.hpp"
 
@@ -50,6 +60,7 @@ void initializeCLASSstructures(metadata & sim, icsettings & ic, cosmology & cosm
 	nonlinear class_nonlinear;
 	spectra class_spectra;
   	lensing class_lensing;
+	distortions class_distortions;
   	output class_output;
 	file_content class_filecontent;
 	ErrorMsg class_errmsg;
@@ -239,7 +250,7 @@ void initializeCLASSstructures(metadata & sim, icsettings & ic, cosmology & cosm
 
 	COUT << " gevolution is calling CLASS..." << endl << endl;
 
-	if (input_init(&class_filecontent, &class_precision, &class_background, &class_thermo, &class_perturbs, &class_transfers, &class_primordial, &class_spectra, &class_nonlinear, &class_lensing, &class_output, class_errmsg) == _FAILURE_)
+	if (input_read_from_file(&class_filecontent, &class_precision, &class_background, &class_thermo, &class_perturbs, &class_transfers, &class_primordial, &class_spectra, &class_nonlinear, &class_lensing, &class_distortions, &class_output, class_errmsg) == _FAILURE_)
 	{
 		COUT << " error: calling input_init from CLASS library failed!" << endl << " following error message was passed: " << class_errmsg << endl;
 		parallel.abortForce();
