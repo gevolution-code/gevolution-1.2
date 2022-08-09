@@ -18,9 +18,9 @@
 // 4. Fourier-space projection methods for the computation of the
 //    curl and divergence of the velocity field
 //
-// Author: Julian Adamek (Université de Genève & Observatoire de Paris & Queen Mary University of London)
+// Author: Julian Adamek (Université de Genève & Observatoire de Paris & Queen Mary University of London & Universität Zürich)
 //
-// Last modified: April 2019
+// Last modified: August 2022
 //
 //////////////////////////
 
@@ -580,7 +580,8 @@ Real update_q(double dtau, double dx, part_simple * part, double * ref_dist, par
 	Real pgradB[3]={0,0,0};
 	Real v2 = (*part).vel[0] * (*part).vel[0] + (*part).vel[1] * (*part).vel[1] + (*part).vel[2] * (*part).vel[2];
 	Real e2 = v2 + params[0] * params[0];
-	
+
+#if GRADIENT_ORDER == 1	
 	gradphi[0] = (1.-ref_dist[1]) * (1.-ref_dist[2]) * (phi(xphi+0) - phi(xphi));
 	gradphi[1] = (1.-ref_dist[0]) * (1.-ref_dist[2]) * (phi(xphi+1) - phi(xphi));
 	gradphi[2] = (1.-ref_dist[0]) * (1.-ref_dist[1]) * (phi(xphi+2) - phi(xphi));
@@ -593,6 +594,21 @@ Real update_q(double dtau, double dx, part_simple * part, double * ref_dist, par
 	gradphi[0] += ref_dist[1] * ref_dist[2] * (phi(xphi+2+1+0) - phi(xphi+2+1));
 	gradphi[1] += ref_dist[0] * ref_dist[2] * (phi(xphi+2+1+0) - phi(xphi+2+0));
 	gradphi[2] += ref_dist[0] * ref_dist[1] * (phi(xphi+2+1+0) - phi(xphi+1+0));
+#elif GRADIENT_ORDER == 2
+	for (int i=0; i<3; i++)
+	{
+		gradphi[i] = 0.5 * (1.-ref_dist[0]) * (1.-ref_dist[1]) * (1.-ref_dist[2]) * (phi(xphi+i) - phi(xphi-i));
+		gradphi[i] += 0.5 * ref_dist[0] * (1.-ref_dist[1]) * (1.-ref_dist[2]) * (phi(xphi+i+0) - phi(xphi-i+0));
+		gradphi[i] += 0.5 * (1.-ref_dist[0]) * ref_dist[1] * (1.-ref_dist[2]) * (phi(xphi+i+1) - phi(xphi-i+1));
+		gradphi[i] += 0.5 * ref_dist[0] * ref_dist[1] * (1.-ref_dist[2]) * (phi(xphi+i+1+0) - phi(xphi-i+1+0));
+		gradphi[i] += 0.5 * (1.-ref_dist[0]) * (1.-ref_dist[1]) * ref_dist[2] * (phi(xphi+2+i) - phi(xphi+2-i));
+		gradphi[i] += 0.5 * ref_dist[0] * (1.-ref_dist[1]) * ref_dist[2] * (phi(xphi+2+i+0) - phi(xphi+2-i+0));
+		gradphi[i] += 0.5 * (1.-ref_dist[0]) * ref_dist[1] * ref_dist[2] * (phi(xphi+2+i+1) - phi(xphi+2-i+1));
+		gradphi[i] += 0.5 * ref_dist[0] * ref_dist[1] * ref_dist[2] * (phi(xphi+2+i+1+0) - phi(xphi+2-i+1+0));
+	}
+#else
+#error GRADIENT_ORDER must be set to 1 or 2
+#endif
 
 	gradphi[0] *= (v2 + e2) / e2;
 	gradphi[1] *= (v2 + e2) / e2;
@@ -698,7 +714,8 @@ Real update_q_Newton(double dtau, double dx, part_simple * part, double * ref_di
 #define xchi (sites[1])
 	
 	Real gradpsi[3]={0,0,0};
-	
+
+#if GRADIENT_ORDER == 1	
 	gradpsi[0] = (1.-ref_dist[1]) * (1.-ref_dist[2]) * (psi(xpsi+0) - psi(xpsi));
 	gradpsi[1] = (1.-ref_dist[0]) * (1.-ref_dist[2]) * (psi(xpsi+1) - psi(xpsi));
 	gradpsi[2] = (1.-ref_dist[0]) * (1.-ref_dist[1]) * (psi(xpsi+2) - psi(xpsi));
@@ -711,6 +728,21 @@ Real update_q_Newton(double dtau, double dx, part_simple * part, double * ref_di
 	gradpsi[0] += ref_dist[1] * ref_dist[2] * (psi(xpsi+2+1+0) - psi(xpsi+2+1));
 	gradpsi[1] += ref_dist[0] * ref_dist[2] * (psi(xpsi+2+1+0) - psi(xpsi+2+0));
 	gradpsi[2] += ref_dist[0] * ref_dist[1] * (psi(xpsi+2+1+0) - psi(xpsi+1+0));
+#elif GRADIENT_ORDER == 2
+	for (int i=0; i<3; i++)
+	{
+		gradpsi[i] = 0.5 * (1.-ref_dist[0]) * (1.-ref_dist[1]) * (1.-ref_dist[2]) * (psi(xpsi+i) - psi(xpsi-i));
+		gradpsi[i] += 0.5 * ref_dist[0] * (1.-ref_dist[1]) * (1.-ref_dist[2]) * (psi(xpsi+i+0) - psi(xpsi-i+0));
+		gradpsi[i] += 0.5 * (1.-ref_dist[0]) * ref_dist[1] * (1.-ref_dist[2]) * (psi(xpsi+i+1) - psi(xpsi-i+1));
+		gradpsi[i] += 0.5 * ref_dist[0] * ref_dist[1] * (1.-ref_dist[2]) * (psi(xpsi+i+1+0) - psi(xpsi-i+1+0));
+		gradpsi[i] += 0.5 * (1.-ref_dist[0]) * (1.-ref_dist[1]) * ref_dist[2] * (psi(xpsi+2+i) - psi(xpsi+2-i));
+		gradpsi[i] += 0.5 * ref_dist[0] * (1.-ref_dist[1]) * ref_dist[2] * (psi(xpsi+2+i+0) - psi(xpsi+2-i+0));
+		gradpsi[i] += 0.5 * (1.-ref_dist[0]) * ref_dist[1] * ref_dist[2] * (psi(xpsi+2+i+1) - psi(xpsi+2-i+1));
+		gradpsi[i] += 0.5 * ref_dist[0] * ref_dist[1] * ref_dist[2] * (psi(xpsi+2+i+1+0) - psi(xpsi+2-i+1+0));
+	}
+#else
+#error GRADIENT_ORDER must be set to 1 or 2
+#endif
 
 	if (nfield>=2 && fields[1] != NULL)
 	{

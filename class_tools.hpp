@@ -23,7 +23,7 @@
 #define perturb_init perturbations_init
 #define perturb_free perturbations_free
 #define perturb_output_titles perturbations_output_titles
-#define perturb_output_data perturbations_output_data
+#define perturb_output_data perturbations_output_data_at_z
 
 #include <gsl/gsl_spline.h>
 #include "parser.hpp"

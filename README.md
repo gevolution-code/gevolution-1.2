@@ -1,7 +1,7 @@
 # gevolution-1.2
 
-Copyright (c) 2015-2020 Julian Adamek
-(Université de Genève & Observatoire de Paris & Queen Mary University of London)
+Copyright (c) 2015-2022 Julian Adamek
+(Université de Genève & Observatoire de Paris & Queen Mary University of London & Universität Zürich)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

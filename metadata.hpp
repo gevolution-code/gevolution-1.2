@@ -4,9 +4,9 @@
 // 
 // Constants and metadata structures
 //
-// Author: Julian Adamek (Université de Genève & Observatoire de Paris & Queen Mary University of London)
+// Author: Julian Adamek (Université de Genève & Observatoire de Paris & Queen Mary University of London & Universität Zürich)
 //
-// Last modified: April 2019
+// Last modified: August 2022
 //
 //////////////////////////
 
@@ -14,6 +14,10 @@
 #define METADATA_HEADER
 
 #define GEVOLUTION_VERSION 1.2
+
+#ifndef GRADIENT_ORDER
+#define GRADIENT_ORDER 1
+#endif
 
 #ifndef MAX_OUTPUTS
 #define MAX_OUTPUTS 32

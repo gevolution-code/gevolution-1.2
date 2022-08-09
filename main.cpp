@@ -26,9 +26,9 @@
 // 
 // main control sequence of Geneva N-body code with evolution of metric perturbations (gevolution)
 //
-// Author: Julian Adamek (Université de Genève & Observatoire de Paris & Queen Mary University of London)
+// Author: Julian Adamek (Université de Genève & Observatoire de Paris & Queen Mary University of London & Universität Zürich)
 //
-// Last modified: November 2019
+// Last modified: August 2022
 //
 //////////////////////////
 
@@ -167,6 +167,10 @@ int main(int argc, char **argv)
 	COUT << " (_| (-' \\/ (_) (_ (_| (  ( (_) /\\/	version 1.2         running on " << n*m << " cores." << endl;
 	COUT << "  -'" << endl << COLORTEXT_RESET << endl;
 	
+#if GRADIENT_ORDER > 1
+	COUT << " compiled with GRADIENT_ORDER=" << GRADIENT_ORDER << endl;
+#endif
+	
 	if (settingsfile == NULL)
 	{
 		COUT << COLORTEXT_RED << " error" << COLORTEXT_RESET << ": no settings file specified!" << endl;
@@ -206,7 +210,7 @@ int main(int argc, char **argv)
 	box[1] = sim.numpts;
 	box[2] = sim.numpts;
 	
-	Lattice lat(3,box,1);
+	Lattice lat(3,box,GRADIENT_ORDER);
 	Lattice latFT;
 	latFT.initializeRealFFT(lat,0);
 	
